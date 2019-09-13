@@ -1,19 +1,18 @@
 import os # enables curl
 import xml.etree.ElementTree as ET
-from xml.etree.ElementTree import fromstring
+from xml.etree.ElementTree import fromstring, tostring, Element
 
 def main():
   user = Log_In()
   suvAddress = user.SuvAddress()
   cont = 1
   while cont > 0:
-      input("\nPaste your xml into 'generic.xml,' save the file, and then press enter to continue.")
+      input("\nPaste your xml into 'input.xml,' save the file, and then press enter to continue.")
       createXml = createXmlFile(user.password)
       submitXML(suvAddress)
-
-      # submitXML(suv_address)
       cont = int(input("\n\nPress 1 to continue or 0 to exit program. "))
   print("\n")
+
 
 class Log_In:
   '''
@@ -26,7 +25,7 @@ class Log_In:
   version = "33.0"
 
   def __init__(self):
-    self.suvNumber = str(input("\nSUV number: "))
+    self.suvNumber = parseURL(str(input("\nSUV number: ")))  #
     self.userName = 'superuser@super'
     self.password = str(input("SUV password: "))
 
@@ -56,6 +55,9 @@ def createXmlFile(password):
     # Write user-entered password to xml document
     headerPassword = root.find('.//wsse:Password', namespaces=namespaces)
     headerPassword.text = password
+
+    # body = root.find('.//SOAP-ENV:Body', namespaces=namespaces)
+
     print("\nCreating XML file...")
     # save info to new xml file
     with open('output.xml', 'w'):
@@ -76,5 +78,11 @@ def submitXML(suvAdress):
 
     responseFile.close()
 
+def parseURL(suv):
+    # If user inputs entire url, returns the correct portion to login.suvNumber
+    if len(suv) > 17:
+        return suv.split("-")[1].split(".")[0]
+    else:
+        return suv
 
 main()

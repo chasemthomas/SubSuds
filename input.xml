@@ -9,6 +9,20 @@
     </wsse:Security>
   </SOAP-ENV:Header>
   <SOAP-ENV:Body>
-    <bsvc:Get_Purchase_Items_Request bsvc:version="v33.0"><bsvc:Response_Filter><bsvc:Count>200</bsvc:Count></bsvc:Response_Filter></bsvc:Get_Purchase_Items_Request>
+  <!--
+    <bsvc:Get_Purchase_Items_Request bsvc:version="v33.0">
+      <bsvc:Request_References>
+        <bsvc:Purchase_Item_Reference bsvc:Descriptor="">
+          <bsvc:ID bsvc:type="wid">610e1d1a439810199a7c969b3d5d075f</bsvc:ID>
+        </bsvc:Purchase_Item_Reference>
+      </bsvc:Request_References>
+    </bsvc:Get_Purchase_Items_Request>
+
+    <bsvc:Get_Purchase_Items_Request bsvc:version="v33.0">
+      <bsvc:Response_Filter>
+        <bsvc:Count>200</bsvc:Count>
+      </bsvc:Response_Filter>
+    </bsvc:Get_Purchase_Items_Request>
+    -->
   </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>
