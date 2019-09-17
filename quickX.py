@@ -1,20 +1,16 @@
 import os # enables curl
 import xml.etree.ElementTree as ET
-from xml.etree.ElementTree import fromstring, tostring, Element
 
 def main():
-  user = Log_In()
-  suvAddress = user.SuvAddress()
-  cont = 1
-  while cont > 0:
-      input("\nPaste your xml into 'input.xml,' save the file, and then press enter to continue.")
-      createXml = createXmlFile(user.password)
-      submitXML(suvAddress)
-      cont = int(input("\n\nPress 1 to continue or 0 to exit program. "))
-  print("\n")
+    user = Log_In()
+    exit = 1
+    while exit > 0:
+        createXmlFile(user.password)
+        submitXML(user.SuvAddress())
+        exit = int(input("\n\nPress 1 to continue or 0 to exit program. "))
+    print("\n")
 
-
-class Log_In:
+class Log_In():
   '''
   Asks the user for the .suvNumber, .userName, and .password.
   Creates an .SuvAddress string from user input.
@@ -27,7 +23,7 @@ class Log_In:
   def __init__(self):
     self.suvNumber = parseURL(str(input("\nSUV number: ")))  #
     self.userName = 'superuser@super'
-    self.password = str(input("SUV password: "))
+    self.password = str(input("\nSUV password: "))
 
   def SuvAddress(self):
       SuvAddress = f"{self.prefix}{self.suvNumber}{self.middle}{self.implementationService}/v{self.version}"
@@ -35,36 +31,24 @@ class Log_In:
 
 def createXmlFile(password):
     '''
-    Takes in password and userXML.
-    Returns a new xml document.
+    Takes in the SUV password and body text entered by user.
+    Creates an XML file called output.xml that is sent to the suv
     '''
-    # parse XML base string into element tree
-    tree = ET.parse("input.xml")
-    # set the root element
-    root = tree.getroot()
-    # namespaces must be registered or they will be overridden by tree.write()
-    ET.register_namespace("SOAP-ENV","http://schemas.xmlsoap.org/soap/envelope/", )
-    ET.register_namespace("bsvc","urn:com.workday/bsvc")
-    ET.register_namespace("wsse","http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd")
-    # mapping the namespaces so they can be found with root.find
-    namespaces = {
-    'SOAP-ENV': 'http://schemas.xmlsoap.org/soap/envelope/',
-    'bsvc': 'urn:com.workday/bsvc',
-    'wsse': 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
-    }
-    # Write user-entered password to xml document
-    headerPassword = root.find('.//wsse:Password', namespaces=namespaces)
-    headerPassword.text = password
-
-    # body = root.find('.//SOAP-ENV:Body', namespaces=namespaces)
-
-    print("\nCreating XML file...")
-    # save info to new xml file
-    with open('output.xml', 'w'):
-        tree.write("output.xml")
+    # Basic required XML structure.
+    baseXml = """<?xml version='1.0' encoding='UTF-8'?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:bsvc='urn:com.workday/bsvc'><SOAP-ENV:Header><wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" SOAP-ENV:mustUnderstand="1"><wsse:UsernameToken><wsse:Username>superuser@super</wsse:Username><wsse:Password wsse:Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText"><!-- password --></wsse:Password></wsse:UsernameToken></wsse:Security></SOAP-ENV:Header><SOAP-ENV:Body><!-- body --></SOAP-ENV:Body></SOAP-ENV:Envelope>"""
+    # Ask user to input xml they want to send in
+    print("\nPlease copy everything between the body tags <SOAP-ENV:Body> and </SOAP-ENV:Body> in your XML.")
+    body = str(input("\nRemove all spaces so it's all one continuous line, and then paste it here: "))
+    # Enter user-entered password into document
+    fin = baseXml.replace("<!-- password -->", password)
+    # Enter user-entered body-text into document
+    newFin = fin.replace("<!-- body -->", body)
+    # Create the output file and write new xml to it.
+    with open("output.xml", "w") as fout:
+        fout.write(newFin)
+        print("\nCreating XML file...\n")
 
 def submitXML(suvAdress):
-
     # submits xml file to wd and save response
     print("\nSubmitting XML to SUV...\n\n")
     # open a file for SUV response.
@@ -75,7 +59,6 @@ def submitXML(suvAdress):
     response = str(response)
     # write the response to the file
     responseFile.write(response)
-
     responseFile.close()
 
 def parseURL(suv):
